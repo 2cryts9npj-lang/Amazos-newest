@@ -1,0 +1,27 @@
+name: Build from ZIP
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Unzip and prepare project
+        run: |
+          unzip -o "amazos phase1 data layer.zip" -d project
+          cp -r project/* .
+          cp -r project/.??* . 2>/dev/null || true
+          rm -rf project
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.22.0'
+
+      - name: Build APK
+        run: flutter build apk --release
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: amazos-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
